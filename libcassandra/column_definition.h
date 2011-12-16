@@ -30,7 +30,8 @@ public:
   ColumnDefinition(const std::string& in_name,
                    const std::string& in_validation_class,
                    const org::apache::cassandra::IndexType::type in_index_type,
-                   const std::string& in_index_name);
+                   const std::string& in_index_name,
+                   const std::map<std::string, std::string> &in_index_options);
   ~ColumnDefinition() {}
 
   /**
@@ -83,6 +84,12 @@ public:
    */
   bool isIndexNameSet() const;
 
+  std::map<std::string, std::string> getIndexOptions() const;
+
+  void setIndexOptions(const std::map<std::string, std::string> &index_options);
+
+  bool isIndexOptionsSet() const;
+
 private:
 
   std::string name;
@@ -94,6 +101,8 @@ private:
   bool is_index_type_set;
 
   std::string index_name;
+
+  std::map<std::string, std::string> index_options;
 
 };
 

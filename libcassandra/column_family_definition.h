@@ -46,9 +46,16 @@ public:
                          const int32_t in_max_compaction_threshold,
                          const int32_t in_row_cache_save_period_in_seconds,
                          const int32_t in_key_cache_save_period_in_seconds,
-                         const int32_t in_memtable_flush_after_mins,
-                         const int32_t in_memtable_throughput_in_mb,
-                         const double in_memtable_operations_in_millions);
+                         const bool in_replicate_on_write,
+                         const double in_merge_shards_chance,
+                         const std::string in_key_validation_class,
+                         const std::string in_row_cache_provider,
+                         const std::string in_key_alias,
+                         const std::string in_compaction_strategy,
+                         const std::map<std::string, std::string> in_compaction_strategy_options,
+                         const int32_t in_row_cache_keys_to_save,
+                         const std::map<std::string, std::string> in_compression_options);
+ 
   ~ColumnFamilyDefinition() {}
 
   /**
@@ -233,45 +240,60 @@ public:
    */
   bool isMinCompactionThresholdSet() const;
 
-  /**
-   * @return memtable flush after mins
-   */
-  int32_t getMemtableFlushAfterMins() const;
+  /** arranco acá*/
 
-  void setMemtableFlushAfterMins(int32_t flush);
+  void setReplicateOnWrite(bool replicate_on_write);
 
-  /**
-   * @return true if memtable flush mins > 0; false otherwise
-   */
-  bool isMemtableFlushAfterMinsSet() const;
+  bool getReplicateOnWrite() const;
 
-  /**
-   * @return memtable operations in millions
-   */
-  double getMemtableOperationsInMillions() const;
+  bool isReplicateOnWriteSet() const;
 
-  void setMemtableOperationsInMillions(double ops);
+  void setMergeShardsChance(double merge_shards_chance);
+  
+  double getMergeShardsChance() const;
+  
+  bool isMergeShardsChanceSet() const;
 
-  /**
-   * @return true if memtable ops > 0; false otherwise
-   */
-  bool isMemtableOperationsInMillionsSet() const;
+  void setKeyValidationClass(const std::string &key_validation_class);
 
-  /**
-   * @return memtable throughput in megabytes
-   */
-  int32_t getMemtableThroughputInMb() const;
+  std::string getKeyValidationClass() const;
 
-  void setMemtableThroughputInMb(int32_t throughput);
+  bool isKeyValidationClassSet() const;
 
-  /**
-   * @return true if memtable throughput > 0; false otherwise
-   */
-  bool isMemtableThroughputInMbSet() const;
+  void setRowCacheProvider(const std::string &row_cache_provider);
 
+  std::string getRowCacheProvider() const;
+
+  bool isRowCacheProviderSet() const;
+
+  void setKeyAlias(const std::string &key_alias);
+
+  std::string getKeyAlias() const;
+
+  bool isKeyAliasSet() const;
+
+  void setCompactionStrategy(const std::string &compaction_strategy);
+
+  std::string getCompactionStrategy() const;
+
+  bool isCompactionStrategySet() const;
+
+  void setCompactionStrategyOptions(const std::map<std::string, std::string> &strategy_options);
+  
+  std::map<std::string, std::string> getCompactionStrategyOptions() const;
+
+  bool isCompactionStrategyOptionsSet() const;
+
+  void setRowCacheKeysToSave(int32_t row_cache_keys_to_save);
+
+  int32_t getRowCacheKeysToSave() const;
+
+  bool isRowCacheKeysToSaveSet() const;
+
+  /* por acá deberías ir parando manolo */
   std::vector<ColumnDefinition> getColumnMetadata() const;
 
-  void setColumnMetadata(std::vector<ColumnDefinition>& meta);
+  void setColumnMetadata(const std::vector<ColumnDefinition>& meta);
 
   void addColumnMetadata(const ColumnDefinition& col_meta);
 
@@ -311,12 +333,26 @@ private:
 
   int32_t key_cache_save_period_in_seconds;
 
-  int32_t memtable_flush_after_mins;
+/**new shit*/
 
-  int32_t memtable_throughput_in_mb;
+  bool replicate_on_write;
+  
+  double merge_shards_chance;
 
-  double memtable_operations_in_millions;
+  std::string key_validation_class;
 
+  std::string row_cache_provider;
+
+  std::string key_alias;
+
+  std::string compaction_strategy;
+
+  std::map<std::string, std::string> compaction_strategy_options;
+  
+  int32_t row_cache_keys_to_save;
+
+  std::map<std::string, std::string> compression_options;
+  
   std::vector<ColumnDefinition> column_metadata;
 
 };

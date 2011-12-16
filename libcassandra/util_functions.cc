@@ -164,21 +164,56 @@ CfDef createCfDefObject(const ColumnFamilyDefinition& cf_def)
     thrift_cf_def.min_compaction_threshold= cf_def.getMinCompactionThreshold();
     thrift_cf_def.__isset.min_compaction_threshold= true;
   }
-  if (cf_def.isMemtableFlushAfterMinsSet())
+//insert the new shit here
+  if (cf_def.isReplicateOnWriteSet())
   {
-    thrift_cf_def.memtable_flush_after_mins= cf_def.getMemtableFlushAfterMins();
-    thrift_cf_def.__isset.memtable_flush_after_mins= true;
+    thrift_cf_def.replicate_on_write = cf_def.getReplicateOnWrite();
+    thrift_cf_def.__isset.replicate_on_write = true;
   }
-  if (cf_def.isMemtableOperationsInMillionsSet())
+
+  if (cf_def.isMergeShardsChanceSet())
   {
-    thrift_cf_def.memtable_operations_in_millions= cf_def.getMemtableOperationsInMillions();
-    thrift_cf_def.__isset.memtable_operations_in_millions= true;
+    thrift_cf_def.merge_shards_chance = cf_def.getMergeShardsChance();
+    thrift_cf_def.__isset.merge_shards_chance = true;
   }
-  if (cf_def.isMemtableThroughputInMbSet())
+
+  if (cf_def.isKeyValidationClassSet()) 
   {
-    thrift_cf_def.memtable_throughput_in_mb= cf_def.getMemtableThroughputInMb();
-    thrift_cf_def.__isset.memtable_throughput_in_mb= cf_def.getMemtableThroughputInMb();
+    thrift_cf_def.key_validation_class = cf_def.getKeyValidationClass();
+    thrift_cf_def.__isset.key_validation_class = true;
   }
+
+  if (cf_def.isRowCacheProviderSet()) 
+  {
+    thrift_cf_def.row_cache_provider = cf_def.getRowCacheProvider();
+    thrift_cf_def.__isset.row_cache_provider = true;
+  }
+
+  if (cf_def.isKeyAliasSet())
+  {
+    thrift_cf_def.key_alias = cf_def.getKeyAlias();
+    thrift_cf_def.__isset.key_alias = true;
+  }
+
+  if (cf_def.isCompactionStrategySet())
+  {
+    thrift_cf_def.compaction_strategy = cf_def.getCompactionStrategy();
+    thrift_cf_def.__isset.compaction_strategy = true;
+  }
+
+  if (cf_def.isCompactionStrategyOptionsSet())
+  {
+    thrift_cf_def.compaction_strategy_options = cf_def.getCompactionStrategyOptions();
+    thrift_cf_def.__isset.compaction_strategy_options = true;
+  }
+  
+  if (cf_def.isRowCacheKeysToSaveSet())
+  {
+    thrift_cf_def.row_cache_keys_to_save = cf_def.getRowCacheKeysToSave();
+    thrift_cf_def.__isset.row_cache_keys_to_save = true;
+  }
+
+//stop
   if (cf_def.isColumnMetadataSet())
   {
     vector<ColumnDefinition> cols= cf_def.getColumnMetadata();

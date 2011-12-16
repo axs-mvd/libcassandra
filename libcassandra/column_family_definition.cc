@@ -37,9 +37,13 @@ ColumnFamilyDefinition::ColumnFamilyDefinition()
     max_compaction_threshold(22),
     row_cache_save_period_in_seconds(0),
     key_cache_save_period_in_seconds(0),
-    memtable_flush_after_mins(60),
-    memtable_throughput_in_mb(0),
-    memtable_operations_in_millions(0.0),
+    replicate_on_write(true),
+    merge_shards_chance(0.0),
+    key_validation_class(""),
+    row_cache_provider("org.apache.cassandra.cache.ConcurrentLinkedHashCacheProvider"),
+    key_alias(""),
+    compaction_strategy_options(),
+    row_cache_keys_to_save(0),
     column_metadata()
 {}
 
@@ -61,9 +65,15 @@ ColumnFamilyDefinition::ColumnFamilyDefinition(const string& in_keyspace_name,
                                                const int32_t in_max_compaction_threshold,
                                                const int32_t in_row_cache_save_period_in_seconds,
                                                const int32_t in_key_cache_save_period_in_seconds,
-                                               const int32_t in_memtable_flush_after_mins,
-                                               const int32_t in_memtable_throughput_in_mb,
-                                               const double in_memtable_operations_in_millions)
+                                               const bool in_replicate_on_write,
+                                               const double in_merge_shards_chance,
+                                               const std::string in_key_validation_class,
+                                               const std::string in_row_cache_provider,
+                                               const std::string in_key_alias,
+                                               const std::string in_compaction_strategy,
+                                               const std::map<std::string, std::string> in_compaction_strategy_options,
+                                               const int32_t in_row_cache_keys_to_save,
+                                               const std::map<std::string, std::string> in_compression_options) 
   :
     keyspace_name(in_keyspace_name),
     name(in_name),
@@ -81,9 +91,13 @@ ColumnFamilyDefinition::ColumnFamilyDefinition(const string& in_keyspace_name,
     max_compaction_threshold(in_max_compaction_threshold),
     row_cache_save_period_in_seconds(in_row_cache_save_period_in_seconds),
     key_cache_save_period_in_seconds(in_key_cache_save_period_in_seconds),
-    memtable_flush_after_mins(in_memtable_flush_after_mins),
-    memtable_throughput_in_mb(in_memtable_throughput_in_mb),
-    memtable_operations_in_millions(in_memtable_operations_in_millions),
+    replicate_on_write(in_replicate_on_write),
+    merge_shards_chance(in_merge_shards_chance),
+    key_validation_class(in_key_validation_class),
+    row_cache_provider(in_row_cache_provider),
+    key_alias(in_key_alias),
+    compaction_strategy_options(in_compaction_strategy_options),
+    row_cache_keys_to_save(in_row_cache_keys_to_save),
     column_metadata()
 {
   for (vector<ColumnDef>::iterator it= in_column_metadata.begin();
@@ -94,7 +108,9 @@ ColumnFamilyDefinition::ColumnFamilyDefinition(const string& in_keyspace_name,
     ColumnDefinition entry(thrift_entry.name,
                            thrift_entry.validation_class,
                            thrift_entry.index_type,
-                           thrift_entry.index_name);
+                           thrift_entry.index_name,
+                           thrift_entry.index_options);
+
     column_metadata.push_back(entry);
   }
 }
@@ -317,125 +333,180 @@ bool ColumnFamilyDefinition::isDefaultValidationClassSet() const
   return (! default_validation_class.empty());
 }
 
-
 int32_t ColumnFamilyDefinition::getId() const
 {
   return id;
 }
-
 
 void ColumnFamilyDefinition::setId(int32_t new_id)
 {
   id= new_id;
 }
 
-
 bool ColumnFamilyDefinition::isIdSet() const
 {
   return (id > 0 ? true : false);
 }
-
 
 int32_t ColumnFamilyDefinition::getMaxCompactionThreshold() const
 {
   return max_compaction_threshold;
 }
 
-
 void ColumnFamilyDefinition::setMaxCompactionThreshold(int32_t threshold)
 {
   max_compaction_threshold= threshold;
 }
-
 
 bool ColumnFamilyDefinition::isMaxCompactionThresholdSet() const
 {
   return (max_compaction_threshold > 0 ? true : false);
 }
 
-
 int32_t ColumnFamilyDefinition::getMinCompactionThreshold() const
 {
   return min_compaction_threshold;
 }
-
 
 void ColumnFamilyDefinition::setMinCompactionThreshold(int32_t threshold)
 {
   min_compaction_threshold= threshold;
 }
 
-
 bool ColumnFamilyDefinition::isMinCompactionThresholdSet() const
 {
   return (min_compaction_threshold > 0 ? true : false);
 }
 
-
-int32_t ColumnFamilyDefinition::getMemtableFlushAfterMins() const
+void ColumnFamilyDefinition::setReplicateOnWrite(bool replicate_on_write) 
 {
-  return memtable_flush_after_mins;
+  this->replicate_on_write = replicate_on_write;
 }
 
-
-void ColumnFamilyDefinition::setMemtableFlushAfterMins(int32_t flush)
+bool ColumnFamilyDefinition::getReplicateOnWrite() const 
 {
-  memtable_flush_after_mins= flush;
+  return replicate_on_write;
 }
 
-
-bool ColumnFamilyDefinition::isMemtableFlushAfterMinsSet() const
+bool ColumnFamilyDefinition::isReplicateOnWriteSet() const
 {
-  return (memtable_flush_after_mins > 0 ? true : false);
+  return !replicate_on_write;
 }
 
-
-double ColumnFamilyDefinition::getMemtableOperationsInMillions() const
+void ColumnFamilyDefinition::setMergeShardsChance(double merge_shards_chance) 
 {
-  return memtable_operations_in_millions;
+  this->merge_shards_chance = merge_shards_chance;
 }
 
-
-void ColumnFamilyDefinition::setMemtableOperationsInMillions(double ops)
+double ColumnFamilyDefinition::getMergeShardsChance() const
 {
-  memtable_operations_in_millions= ops;
+  return merge_shards_chance;
 }
 
-
-bool ColumnFamilyDefinition::isMemtableOperationsInMillionsSet() const
+bool ColumnFamilyDefinition::isMergeShardsChanceSet() const 
 {
-  return (memtable_operations_in_millions > 0 ? true : false);
+  return merge_shards_chance != 0.0;
 }
 
-
-int32_t ColumnFamilyDefinition::getMemtableThroughputInMb() const
+void ColumnFamilyDefinition::setKeyValidationClass(const std::string &key_validation_class) 
 {
-  return memtable_throughput_in_mb;
+  this->key_validation_class = key_validation_class;
 }
 
-
-void ColumnFamilyDefinition::setMemtableThroughputInMb(int32_t throughput)
+std::string ColumnFamilyDefinition::getKeyValidationClass() const
 {
-  memtable_throughput_in_mb= throughput;
+  return key_validation_class;
 }
 
-
-bool ColumnFamilyDefinition::isMemtableThroughputInMbSet() const
+bool ColumnFamilyDefinition::isKeyValidationClassSet() const
 {
-  return (memtable_throughput_in_mb > 0 ? true : false);
+  return key_validation_class != "";
 }
 
+void ColumnFamilyDefinition::setRowCacheProvider(const std::string &row_cache_provider)
+{
+  this->row_cache_provider = row_cache_provider;
+}
+
+std::string ColumnFamilyDefinition::getRowCacheProvider() const
+{
+  return row_cache_provider;
+}
+
+bool ColumnFamilyDefinition::isRowCacheProviderSet() const
+{
+  return row_cache_provider != "org.apache.cassandra.cache.ConcurrentLinkedHashCacheProvider";
+}
+
+void ColumnFamilyDefinition::setKeyAlias(const std::string &key_alias) 
+{
+  this->key_alias = key_alias;
+}
+
+std::string ColumnFamilyDefinition::getKeyAlias() const 
+{
+  return key_alias;
+}
+
+bool ColumnFamilyDefinition::isKeyAliasSet() const
+{
+  return !key_alias.empty();
+}
+
+void ColumnFamilyDefinition::setCompactionStrategy(const std::string &compaction_strategy)
+{
+  this->compaction_strategy = compaction_strategy;
+}
+
+std::string ColumnFamilyDefinition::getCompactionStrategy() const 
+{
+  return compaction_strategy;
+}
+
+bool ColumnFamilyDefinition::isCompactionStrategySet() const 
+{
+  return !compaction_strategy.empty();
+}
+
+void ColumnFamilyDefinition::setCompactionStrategyOptions(const std::map<std::string, std::string> &compaction_strategy_options)
+{
+  this->compaction_strategy_options = compaction_strategy_options;
+}
+
+std::map<std::string, std::string> ColumnFamilyDefinition::getCompactionStrategyOptions() const
+{
+  return compaction_strategy_options;
+}
+
+bool ColumnFamilyDefinition::isCompactionStrategyOptionsSet() const
+{
+  return !compaction_strategy_options.empty();
+}
+
+void ColumnFamilyDefinition::setRowCacheKeysToSave(int32_t row_cache_keys_to_save)
+{
+  this->row_cache_keys_to_save = row_cache_keys_to_save;
+}
+
+int32_t ColumnFamilyDefinition::getRowCacheKeysToSave() const
+{
+  return row_cache_keys_to_save;
+}
+
+bool ColumnFamilyDefinition::isRowCacheKeysToSaveSet() const
+{
+  return row_cache_keys_to_save != 0;
+}
 
 vector<ColumnDefinition> ColumnFamilyDefinition::getColumnMetadata() const
 {
   return column_metadata;
 }
 
-
-void ColumnFamilyDefinition::setColumnMetadata(vector<ColumnDefinition>& meta)
+void ColumnFamilyDefinition::setColumnMetadata(const vector<ColumnDefinition>& meta)
 {
   column_metadata.clear();
-  for (vector<ColumnDefinition>::iterator it= meta.begin();
+  for (vector<ColumnDefinition>::const_iterator it= meta.begin();
        it != meta.end();
        ++it)
   {
@@ -443,12 +514,10 @@ void ColumnFamilyDefinition::setColumnMetadata(vector<ColumnDefinition>& meta)
   }
 }
 
-
 void ColumnFamilyDefinition::addColumnMetadata(const ColumnDefinition& col_meta)
 {
   column_metadata.push_back(col_meta);
 }
-
 
 bool ColumnFamilyDefinition::isColumnMetadataSet() const
 {

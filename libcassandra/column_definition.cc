@@ -24,20 +24,23 @@ ColumnDefinition::ColumnDefinition()
     validation_class(),
     index_type(),
     is_index_type_set(false),
-    index_name()
+    index_name(),
+    index_options()
 {}
 
 
 ColumnDefinition::ColumnDefinition(const string& in_name,
                                    const string& in_validation_class,
                                    const IndexType::type in_index_type,
-                                   const string& in_index_name)
+                                   const string& in_index_name,
+                                   const std::map<std::string, std::string> &in_index_options)
   :
     name(in_name),
     validation_class(in_validation_class),
     index_type(in_index_type),
     is_index_type_set(true),
-    index_name(in_index_name)
+    index_name(in_index_name),
+    index_options(in_index_options)
 {}
 
 
@@ -100,3 +103,19 @@ bool ColumnDefinition::isIndexNameSet() const
 {
   return (! index_name.empty());
 }
+
+std::map<std::string, std::string> ColumnDefinition::getIndexOptions() const
+{
+  return index_options;
+}
+
+void ColumnDefinition::setIndexOptions(const std::map<std::string, std::string> &index_options)
+{
+  this->index_options = index_options;
+}
+
+bool ColumnDefinition::isIndexOptionsSet() const
+{
+  return !index_options.empty();
+}
+
