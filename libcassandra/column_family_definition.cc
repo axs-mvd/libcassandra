@@ -498,6 +498,21 @@ bool ColumnFamilyDefinition::isRowCacheKeysToSaveSet() const
   return row_cache_keys_to_save != 0;
 }
 
+void ColumnFamilyDefinition::setCompressionOptions(const std::map<std::string, std::string> &compression_options)
+{
+  this->compression_options = compression_options;
+}
+  
+std::map<std::string, std::string> ColumnFamilyDefinition::getCompressionOptions() const
+{
+  return compression_options;
+}
+
+bool ColumnFamilyDefinition::isCompressionOptionsSet() const
+{
+  return !compression_options.empty();
+}
+
 vector<ColumnDefinition> ColumnFamilyDefinition::getColumnMetadata() const
 {
   return column_metadata;

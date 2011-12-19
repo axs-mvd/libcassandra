@@ -164,7 +164,7 @@ CfDef createCfDefObject(const ColumnFamilyDefinition& cf_def)
     thrift_cf_def.min_compaction_threshold= cf_def.getMinCompactionThreshold();
     thrift_cf_def.__isset.min_compaction_threshold= true;
   }
-//insert the new shit here
+
   if (cf_def.isReplicateOnWriteSet())
   {
     thrift_cf_def.replicate_on_write = cf_def.getReplicateOnWrite();
@@ -177,13 +177,13 @@ CfDef createCfDefObject(const ColumnFamilyDefinition& cf_def)
     thrift_cf_def.__isset.merge_shards_chance = true;
   }
 
-  if (cf_def.isKeyValidationClassSet()) 
+  if (cf_def.isKeyValidationClassSet())
   {
     thrift_cf_def.key_validation_class = cf_def.getKeyValidationClass();
     thrift_cf_def.__isset.key_validation_class = true;
   }
 
-  if (cf_def.isRowCacheProviderSet()) 
+  if (cf_def.isRowCacheProviderSet())
   {
     thrift_cf_def.row_cache_provider = cf_def.getRowCacheProvider();
     thrift_cf_def.__isset.row_cache_provider = true;
@@ -193,6 +193,18 @@ CfDef createCfDefObject(const ColumnFamilyDefinition& cf_def)
   {
     thrift_cf_def.key_alias = cf_def.getKeyAlias();
     thrift_cf_def.__isset.key_alias = true;
+  }
+
+  if (cf_def.isRowCacheKeysToSaveSet())
+  {
+    thrift_cf_def.row_cache_keys_to_save = cf_def.getRowCacheKeysToSave();
+    thrift_cf_def.__isset.row_cache_keys_to_save = true;
+  }
+
+  if (cf_def.isCompressionOptionsSet())
+  {
+    thrift_cf_def.compression_options = cf_def.getCompressionOptions();
+    thrift_cf_def.__isset.compression_options = true;
   }
 
   if (cf_def.isCompactionStrategySet())
@@ -206,14 +218,7 @@ CfDef createCfDefObject(const ColumnFamilyDefinition& cf_def)
     thrift_cf_def.compaction_strategy_options = cf_def.getCompactionStrategyOptions();
     thrift_cf_def.__isset.compaction_strategy_options = true;
   }
-  
-  if (cf_def.isRowCacheKeysToSaveSet())
-  {
-    thrift_cf_def.row_cache_keys_to_save = cf_def.getRowCacheKeysToSave();
-    thrift_cf_def.__isset.row_cache_keys_to_save = true;
-  }
 
-//stop
   if (cf_def.isColumnMetadataSet())
   {
     vector<ColumnDefinition> cols= cf_def.getColumnMetadata();

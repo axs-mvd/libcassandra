@@ -290,6 +290,12 @@ public:
 
   bool isRowCacheKeysToSaveSet() const;
 
+  void setCompressionOptions(const std::map<std::string, std::string> &compression_options);
+  
+  std::map<std::string, std::string> getCompressionOptions() const;
+
+  bool isCompressionOptionsSet() const;
+
   /* por acá deberías ir parando manolo */
   std::vector<ColumnDefinition> getColumnMetadata() const;
 

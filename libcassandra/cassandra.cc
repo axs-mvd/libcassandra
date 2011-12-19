@@ -545,7 +545,9 @@ vector<KeyspaceDefinition> Cassandra::getKeyspaces()
                                thrift_entry.strategy_class,
                                thrift_entry.strategy_options,
                                thrift_entry.replication_factor,
-                               thrift_entry.cf_defs);
+                               thrift_entry.cf_defs,
+                               thrift_entry.durable_writes);
+
       key_spaces.push_back(entry);
     }
 
