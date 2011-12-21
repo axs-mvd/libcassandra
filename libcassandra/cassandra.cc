@@ -127,6 +127,10 @@ void Cassandra::insertColumn(const string& key,
   col.name.assign(column_name);
   col.value.assign(value);
   col.timestamp= createTimestamp();
+
+  col.__isset.value     = true;
+  col.__isset.timestamp = true;
+
   if (ttl) 
   {
     col.ttl=ttl;
@@ -300,7 +304,7 @@ int64_t Cassandra::getIntegerColumnValue(const string& key,
                                          const string& column_family,
                                          const string& column_name)
 {
-	string ret= getColumn(key, column_family, column_name).value;
+  string ret= getColumn(key, column_family, column_name).value;
   return deserializeLong(ret);
 }
 
@@ -544,7 +548,6 @@ vector<KeyspaceDefinition> Cassandra::getKeyspaces()
       KeyspaceDefinition entry(thrift_entry.name,
                                thrift_entry.strategy_class,
                                thrift_entry.strategy_options,
-                               thrift_entry.replication_factor,
                                thrift_entry.cf_defs,
                                thrift_entry.durable_writes);
 
@@ -678,6 +681,10 @@ void Cassandra::addToMap(const ColumnInsertTuple &tuple, MutationsMap &mutations
   mutation.column_or_supercolumn.column.name      = name; 
   mutation.column_or_supercolumn.column.value     = value; 
   mutation.column_or_supercolumn.column.timestamp = createTimestamp(); 
+
+  mutation.column_or_supercolumn.column.__isset.value     = true;
+  mutation.column_or_supercolumn.column.__isset.timestamp = true;
+
   mutation.column_or_supercolumn.__isset.column   = true;
   mutation.__isset.column_or_supercolumn          = true;
 
@@ -737,15 +744,18 @@ void Cassandra::addToMap(const SuperColumnInsertTuple &tuple, MutationsMap &muta
     }
   }
 
-  mutation.column_or_supercolumn.super_column.name = super_column;
+  mutation.column_or_supercolumn.super_column.name    = super_column;
   mutation.column_or_supercolumn.__isset.super_column = true;
-  mutation.__isset.column_or_supercolumn = true;
+  mutation.__isset.column_or_supercolumn              = true;
 
   Column column;
 
   column.name = name;
   column.value = value;
+
   column.timestamp = createTimestamp();
+  column.__isset.value = true;
+  column.__isset.timestamp = true;
 
   mutation.column_or_supercolumn.super_column.columns.push_back(column);
 

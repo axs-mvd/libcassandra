@@ -32,7 +32,6 @@ public:
   KeyspaceDefinition(const std::string& in_name,
                      const std::string& in_strategy_class,
                      const std::map<std::string, std::string>& in_strategy_options,
-                     const int32_t in_replication_factor,
                      std::vector<org::apache::cassandra::CfDef>& in_cf_defs,
                      bool durable_writes);
 
@@ -58,13 +57,6 @@ public:
   std::map<std::string, std::string> getStrategyOptions() const;
 
   void setStrategyOptions(const std::map<std::string, std::string>& opts);
-
-  /**
-   * @return replication factor for this keyspace
-   */
-  int32_t getReplicationFactor() const;
-
-  void setReplicationFactor(int32_t rep_factor);
 
   /**
    * @return the column families in this keyspace
@@ -96,8 +88,6 @@ private:
   std::string strategy_class;
 
   std::map<std::string, std::string> strategy_options;
-
-  int32_t replication_factor;
 
   std::vector<ColumnFamilyDefinition> col_family_defs;
 

@@ -69,9 +69,22 @@ ColumnDef createColumnDefObject(const ColumnDefinition& col_def)
 KsDef createKsDefObject(const KeyspaceDefinition& ks_def)
 {
   KsDef thrift_ks_def;
+
   thrift_ks_def.name.assign(ks_def.getName());
   thrift_ks_def.strategy_class.assign(ks_def.getStrategyClass());
+  thrift_ks_def.strategy_options = ks_def.getStrategyOptions();
+  thrift_ks_def.durable_writes = ks_def.getDurableWrites();
+
+  if (!thrift_ks_def.strategy_options.empty()) {
+    thrift_ks_def.__isset.strategy_options = true; 
+  } 
+
+  if (!thrift_ks_def.durable_writes) {
+    thrift_ks_def.__isset.durable_writes = true;
+  }
+ 
   vector<ColumnFamilyDefinition> cf_defs= ks_def.getColumnFamilies();
+
   for (vector<ColumnFamilyDefinition>::iterator it= cf_defs.begin();
        it != cf_defs.end();
        ++it)
@@ -79,7 +92,6 @@ KsDef createKsDefObject(const KeyspaceDefinition& ks_def)
     CfDef entry= createCfDefObject(*it);
     thrift_ks_def.cf_defs.push_back(entry);
   }
-  thrift_ks_def.replication_factor= ks_def.getReplicationFactor();
   return thrift_ks_def;
 }
 
@@ -284,7 +296,8 @@ vector<SuperColumn> getSuperColumnList(vector<ColumnOrSuperColumn>& cols)
        ++it)
   {
     ret.push_back((*it).super_column);
-  } return ret;
+  } 
+  return ret;
 }
 
 
