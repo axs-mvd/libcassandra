@@ -669,6 +669,72 @@ void Cassandra::batchInsert(const std::vector<ColumnInsertTuple> &columns,
   batchInsert(columns, super_columns, ConsistencyLevel::QUORUM);
 }
 
+void Cassandra::incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &super_column_name, 
+                        const std::string &column_name,
+                        int64_t value,
+                        org::apache::cassandra::ConsistencyLevel::type level) {
+
+  ColumnParent col_parent;
+  col_parent.column_family.assign(column_family);
+  if (! super_column_name.empty()) 
+  {
+    col_parent.super_column.assign(super_column_name);
+    col_parent.__isset.super_column= true;
+  }
+
+  CounterColumn col;
+  col.name.assign(column_name);
+  col.value = value;
+
+  thrift_client->add(key, col_parent, col, level);
+}
+
+void Cassandra::incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &super_column_name, 
+                        const std::string &column_name,
+                        int64_t value)
+{
+  incrementCounter(key, column_family, super_column_name, 
+                   column_name, value, ConsistencyLevel::QUORUM); 
+}
+
+void Cassandra::incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &super_column_name, 
+                        const std::string &column_name)
+{
+  incrementCounter(key, column_family, super_column_name, 
+                   column_name, 1, ConsistencyLevel::QUORUM); 
+}
+
+void Cassandra::incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &column_name,
+                        org::apache::cassandra::ConsistencyLevel::type level)
+{
+  incrementCounter(key, column_family, "", column_name, 1, level); 
+}
+
+
+void Cassandra::incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &column_name)
+{
+  incrementCounter(key, column_family, "", 
+                   column_name, 1, ConsistencyLevel::QUORUM); 
+}
+
+void Cassandra::removeCounter(const std::string &key,
+                     const org::apache::cassandra::ColumnPath& col_path,
+                     org::apache::cassandra::ConsistencyLevel::type level) {
+  thrift_client->remove_counter(key, col_path, level);
+}
+
+
+
 void Cassandra::addToMap(const ColumnInsertTuple &tuple, MutationsMap &mutations) {
 
   std::string column_family = std::tr1::get<0>(tuple);

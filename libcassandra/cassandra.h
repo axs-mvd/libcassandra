@@ -490,7 +490,59 @@ public:
 
   void batchInsert(const std::vector<ColumnInsertTuple> &columns,
                    const std::vector<SuperColumnInsertTuple> &super_columns); 
- 
+
+  /**
+   * Increments a counter column
+   *
+   * @param[in] key the column key
+   * @param[in] column_family the column family
+   * @param[in] super_column_name the super column name (optional)
+   * @param[in] column_name the column name
+   * @param[in] value the column value, can hold negative integers
+   * @param[in] level consistency level
+   */
+  void incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &super_column_name, 
+                        const std::string &column_name,
+                        int64_t value,
+                        org::apache::cassandra::ConsistencyLevel::type level);
+
+  void incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &super_column_name, 
+                        const std::string &column_name,
+                        int64_t value);
+
+  void incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &super_column_name, 
+                        const std::string &column_name);
+
+  void incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &column_name,
+                        org::apache::cassandra::ConsistencyLevel::type level);
+
+  void incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &column_name);
+
+  /**
+   * Removes all the counter columns that match the given column path
+   *
+   * @param[in] key the counter column or super column key
+   * @param[in] col_path the path to the counter column or super column
+   * @param[in] level consistency level
+   */
+  void removeCounter(const std::string &key,
+                     const org::apache::cassandra::ColumnPath& col_path,
+                     org::apache::cassandra::ConsistencyLevel::type level);
+
+  void removeCounter(const std::string &key,
+                     const org::apache::cassandra::ColumnPath& col_path);
+
+
 private:
   /**
    * Finds the given keyspace in the list of keyspace definitions
