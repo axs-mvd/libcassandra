@@ -522,7 +522,13 @@ public:
   void incrementCounter(const std::string &key, 
                         const std::string &column_family, 
                         const std::string &column_name,
+                        int64_t value,
                         org::apache::cassandra::ConsistencyLevel::type level);
+ 
+  void incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &column_name,
+                        int64_t value);
 
   void incrementCounter(const std::string &key, 
                         const std::string &column_family, 

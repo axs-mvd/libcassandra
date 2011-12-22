@@ -713,9 +713,18 @@ void Cassandra::incrementCounter(const std::string &key,
 void Cassandra::incrementCounter(const std::string &key, 
                         const std::string &column_family, 
                         const std::string &column_name,
+                        int64_t value,
                         org::apache::cassandra::ConsistencyLevel::type level)
 {
-  incrementCounter(key, column_family, "", column_name, 1, level); 
+  incrementCounter(key, column_family, "", column_name, value, level); 
+}
+
+void Cassandra::incrementCounter(const std::string &key, 
+                        const std::string &column_family, 
+                        const std::string &column_name,
+                        int64_t value)
+{
+  incrementCounter(key, column_family, "", column_name, value, ConsistencyLevel::QUORUM); 
 }
 
 
