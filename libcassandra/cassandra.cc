@@ -256,8 +256,17 @@ Column Cassandra::getColumn(const string& key,
   col_path.column.assign(column_name);
   col_path.__isset.column= true;
   ColumnOrSuperColumn cosc;
+
+  cout << "[" << __FILE__ << ":" << __LINE__ << "] before" << endl;
   /* TODO - validate column path */
   thrift_client->get(cosc, key, col_path, level);
+  cout << "[" << __FILE__ << ":" << __LINE__ << "] after" << endl;
+  if (!cosc.counter_column.name.empty()) 
+  {
+    cout << "[" << __FILE__ << ":" << __LINE__ << "] it's a numberwang " << cosc.counter_column.name << endl;
+  }
+  
+  
   if (cosc.column.name.empty())
   {
     /* throw an exception */
@@ -742,7 +751,59 @@ void Cassandra::removeCounter(const std::string &key,
   thrift_client->remove_counter(key, col_path, level);
 }
 
+int64_t Cassandra::getCounterValue(const string& key,
+                            const string &column_family,
+                            const string &super_column_name,
+                            const string &column_name,
+                            org::apache::cassandra::ConsistencyLevel::type level)
+{
+  ColumnPath col_path;
+  col_path.column_family.assign(column_family);
 
+  if (! super_column_name.empty()) 
+  {
+    col_path.super_column.assign(super_column_name);
+    col_path.__isset.super_column = true;
+  }
+ 
+  col_path.column.assign(column_name);
+  col_path.__isset.column= true;
+  ColumnOrSuperColumn cosc;
+
+  thrift_client->get(cosc, key, col_path, level);
+
+  if (cosc.counter_column.name.empty()) 
+  {
+    /* throw an exception */
+    throw(InvalidRequestException());
+  }
+  return cosc.counter_column.value;
+}
+
+int64_t Cassandra::getCounterValue(const std::string &key,
+                        const std::string &column_family,
+                        const std::string &super_column_name,
+                        const std::string &column_name)
+{
+  return getCounterValue(key, column_family, super_column_name, 
+                         column_name, ConsistencyLevel::QUORUM);
+}
+
+int64_t Cassandra::getCounterValue(const std::string &key,
+                        const std::string &column_family,
+                        const std::string &column_name,
+                        org::apache::cassandra::ConsistencyLevel::type level)
+{
+  return getCounterValue(key, column_family, "", column_name, level);
+}
+
+int64_t Cassandra::getCounterValue(const std::string &key,
+                        const std::string &column_family,
+                        const std::string &column_name)
+{
+  return getCounterValue(key, column_family, "", 
+                         column_name, ConsistencyLevel::QUORUM);
+}
 
 void Cassandra::addToMap(const ColumnInsertTuple &tuple, MutationsMap &mutations) {
 

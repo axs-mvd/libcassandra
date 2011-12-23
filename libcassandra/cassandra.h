@@ -535,6 +535,37 @@ public:
                         const std::string &column_name);
 
   /**
+   * Get counter current value
+   * 
+   * @param[in] key the column key
+   * @param[in] column_family the column family
+   * @param[in] super_column_name the super column name (optional)
+   * @param[in] column_name the column name
+   * @param[in] level consistency level
+   */
+
+  int64_t getCounterValue(const std::string &key,
+                          const std::string &column_family,
+                          const std::string &super_column_name,
+                          const std::string &column_name,
+                          org::apache::cassandra::ConsistencyLevel::type level);
+
+  int64_t getCounterValue(const std::string &key,
+                          const std::string &column_family,
+                          const std::string &super_column_name,
+                          const std::string &column_name);
+
+  int64_t getCounterValue(const std::string &key,
+                          const std::string &column_family,
+                          const std::string &column_name,
+                          org::apache::cassandra::ConsistencyLevel::type level);
+
+  int64_t getCounterValue(const std::string &key,
+                          const std::string &column_family,
+                          const std::string &column_name);
+
+
+  /**
    * Removes all the counter columns that match the given column path
    *
    * @param[in] key the counter column or super column key
