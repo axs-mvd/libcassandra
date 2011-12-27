@@ -257,15 +257,9 @@ Column Cassandra::getColumn(const string& key,
   col_path.__isset.column= true;
   ColumnOrSuperColumn cosc;
 
-  cout << "[" << __FILE__ << ":" << __LINE__ << "] before" << endl;
   /* TODO - validate column path */
   thrift_client->get(cosc, key, col_path, level);
-  cout << "[" << __FILE__ << ":" << __LINE__ << "] after" << endl;
-  if (!cosc.counter_column.name.empty()) 
-  {
-    cout << "[" << __FILE__ << ":" << __LINE__ << "] it's a numberwang " << cosc.counter_column.name << endl;
-  }
-  
+ 
   
   if (cosc.column.name.empty())
   {
