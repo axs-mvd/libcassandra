@@ -260,13 +260,19 @@ Column Cassandra::getColumn(const string& key,
   /* TODO - validate column path */
   thrift_client->get(cosc, key, col_path, level);
  
-  
-  if (cosc.column.name.empty())
+ 
+  if (!cosc.column.name.empty())
   {
-    /* throw an exception */
+    return cosc.column;
+  } 
+  else if (!cosc.counter_column.name.empty()) 
+  {
+    return translate(cosc.counter_column);
+  } 
+  else
+  {
     throw(InvalidRequestException());
   }
-  return cosc.column;
 }
 
 
@@ -325,12 +331,19 @@ SuperColumn Cassandra::getSuperColumn(const string& key,
   ColumnOrSuperColumn cosc;
   /* TODO - validate super column path */
   thrift_client->get(cosc, key, col_path, level);
-  if (cosc.super_column.name.empty())
+
+  if (!cosc.super_column.name.empty())
   {
-    /* throw an exception */
+    return cosc.super_column;
+  }
+  else if (!cosc.super_column.name.empty())
+  {
+    return translate(cosc.counter_super_column);
+  }
+  else
+  {
     throw(InvalidRequestException());
   }
-  return cosc.super_column;
 }
 
 
@@ -359,6 +372,10 @@ vector<Column> Cassandra::getSliceNames(const string& key,
     if (! (*it).column.name.empty())
     {
       result.push_back((*it).column);
+    }
+    else if (! (*it).counter_column.name.empty())
+    {
+      result.push_back(translate((*it).counter_column));
     }
   }
   return result;
@@ -390,6 +407,10 @@ vector<Column> Cassandra::getSliceRange(const string& key,
     if (! (*it).column.name.empty())
     {
       result.push_back((*it).column);
+    }
+    else if (! (*it).counter_column.name.empty())
+    {
+      result.push_back(translate((*it).counter_column));
     }
   }
   return result;

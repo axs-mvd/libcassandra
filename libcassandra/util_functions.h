@@ -106,6 +106,16 @@ std::string serializeLong(int64_t t);
  */
 int64_t deserializeLong(std::string& t);
 
+/**
+ * Translate CounterColumn to Column
+ */
+ org::apache::cassandra::Column translate(const org::apache::cassandra::CounterColumn &c);
+
+/**
+ * Translate SuperCounterColumn to Column
+ */
+ org::apache::cassandra::SuperColumn translate(const org::apache::cassandra::CounterSuperColumn &c);
+
 } /* end namespace libcassandra */
 
 #endif /* __LIBCASSANDRA_UTIL_FUNCTIONS_H */

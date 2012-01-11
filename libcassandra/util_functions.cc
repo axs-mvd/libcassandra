@@ -282,8 +282,18 @@ vector<Column> getColumnList(vector<ColumnOrSuperColumn>& cols)
        it != cols.end();
        ++it)
   {
-    ret.push_back((*it).column);
+    if (! (*it).column.name.empty())
+    {
+      ret.push_back((*it).column);
+    } 
+
+    if (! (*it).counter_column.name.empty())
+    {
+      ret.push_back(translate((*it).counter_column));
+    } 
+
   }
+
   return ret;
 }
 
@@ -295,8 +305,18 @@ vector<SuperColumn> getSuperColumnList(vector<ColumnOrSuperColumn>& cols)
        it != cols.end();
        ++it)
   {
-    ret.push_back((*it).super_column);
+
+    if (! (*it).super_column.name.empty()) 
+    {
+      ret.push_back((*it).super_column);
+    }
+    else if (! (*it).counter_super_column.name.empty()) 
+    {
+      ret.push_back(translate((*it).counter_super_column));
+    }
+
   } 
+
   return ret;
 }
 
@@ -345,6 +365,25 @@ int64_t deserializeLong(string& t)
   tmp= raw_array[0];
   ret|= (tmp << 56);
   return ret;
+}
+
+Column translate(const CounterColumn &c) {
+  Column col;
+  col.name = c.name;
+  col.value = serializeLong(c.value);
+
+  return col;
+}
+
+SuperColumn translate(const CounterSuperColumn &s) {
+  SuperColumn sup;
+  sup.name = s.name;
+
+  for (vector<CounterColumn>::const_iterator it = s.columns.begin(); it != s.columns.end(); it++) {
+    sup.columns.push_back(translate(*it));
+  }
+
+  return sup;
 }
 
 } /* end namespace libcassandra */
