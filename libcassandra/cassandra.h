@@ -61,6 +61,19 @@ public:
                           std::string   //value
                          > SuperColumnInsertTuple;
 
+  typedef std::tr1::tuple<std::string,  // column family
+                          std::string,  // key
+                          std::string,  // column Name
+                          int64_t       // value
+                         > CounterColumnInsertTuple;
+
+  typedef std::tr1::tuple<std::string,  // column family
+                          std::string,  // key
+                          std::string,  // super column family
+                          std::string,  // column Name
+                          int64_t       // value
+                         > CounterSuperColumnInsertTuple;
+
 public:
 
   Cassandra();
@@ -99,7 +112,7 @@ public:
 
   /**
    * set the keyspace for the current connection
-   * @param[in] ks_name name of the keyspace to specify for current session 
+   * @param[in] ks_name name of the keyspace to specify for current session
    */
   void setKeyspace(const std::string& ks_name);
 
@@ -351,7 +364,7 @@ public:
                                                             const org::apache::cassandra::ColumnParent& col_parent,
                                                             org::apache::cassandra::SlicePredicate& pred);
 
-  std::vector<std::pair<std::string, std::vector<org::apache::cassandra::Column> > > 
+  std::vector<std::pair<std::string, std::vector<org::apache::cassandra::Column> > >
   getRangeSlice(const org::apache::cassandra::ColumnParent& col_parent,
                 const org::apache::cassandra::SlicePredicate& pred,
                 const std::string& start,
@@ -485,11 +498,29 @@ public:
    * @param[in] super columns to insert
    */
   void batchInsert(const std::vector<ColumnInsertTuple> &columns,
-                   const std::vector<SuperColumnInsertTuple> &super_columns, 
+                   const std::vector<SuperColumnInsertTuple> &super_columns,
                    org::apache::cassandra::ConsistencyLevel::type level);
 
   void batchInsert(const std::vector<ColumnInsertTuple> &columns,
-                   const std::vector<SuperColumnInsertTuple> &super_columns); 
+                   const std::vector<SuperColumnInsertTuple> &super_columns);
+
+  void batchInsert(const std::vector<ColumnInsertTuple> &columns,
+                     const std::vector<SuperColumnInsertTuple> &super_columns,
+                     const std::vector<CounterColumnInsertTuple> &counter_columns,
+                     const std::vector<CounterSuperColumnInsertTuple> &counter_super_columns,
+                     org::apache::cassandra::ConsistencyLevel::type level);
+
+  void batchInsert(const std::vector<ColumnInsertTuple> &columns,
+                     const std::vector<SuperColumnInsertTuple> &super_columns,
+                     const std::vector<CounterColumnInsertTuple> &counter_columns,
+                     const std::vector<CounterSuperColumnInsertTuple> &counter_super_columns);
+
+  void batchInsert(const std::vector<CounterColumnInsertTuple> &counter_columns,
+                     const std::vector<CounterSuperColumnInsertTuple> &counter_super_columns,
+                     org::apache::cassandra::ConsistencyLevel::type level);
+
+  void batchInsert(const std::vector<CounterColumnInsertTuple> &counter_columns,
+                     const std::vector<CounterSuperColumnInsertTuple> &counter_super_columns);
 
   /**
    * Increments a counter column
@@ -501,42 +532,42 @@ public:
    * @param[in] value the column value, can hold negative integers
    * @param[in] level consistency level
    */
-  void incrementCounter(const std::string &key, 
-                        const std::string &column_family, 
-                        const std::string &super_column_name, 
+  void incrementCounter(const std::string &key,
+                        const std::string &column_family,
+                        const std::string &super_column_name,
                         const std::string &column_name,
                         int64_t value,
                         org::apache::cassandra::ConsistencyLevel::type level);
 
-  void incrementCounter(const std::string &key, 
-                        const std::string &column_family, 
-                        const std::string &super_column_name, 
+  void incrementCounter(const std::string &key,
+                        const std::string &column_family,
+                        const std::string &super_column_name,
                         const std::string &column_name,
                         int64_t value);
 
-  void incrementCounter(const std::string &key, 
-                        const std::string &column_family, 
-                        const std::string &super_column_name, 
+  void incrementCounter(const std::string &key,
+                        const std::string &column_family,
+                        const std::string &super_column_name,
                         const std::string &column_name);
 
-  void incrementCounter(const std::string &key, 
-                        const std::string &column_family, 
+  void incrementCounter(const std::string &key,
+                        const std::string &column_family,
                         const std::string &column_name,
                         int64_t value,
                         org::apache::cassandra::ConsistencyLevel::type level);
- 
-  void incrementCounter(const std::string &key, 
-                        const std::string &column_family, 
+
+  void incrementCounter(const std::string &key,
+                        const std::string &column_family,
                         const std::string &column_name,
                         int64_t value);
 
-  void incrementCounter(const std::string &key, 
-                        const std::string &column_family, 
+  void incrementCounter(const std::string &key,
+                        const std::string &column_family,
                         const std::string &column_name);
 
   /**
    * Get counter current value
-   * 
+   *
    * @param[in] key the column key
    * @param[in] column_family the column family
    * @param[in] super_column_name the super column name (optional)
@@ -599,15 +630,19 @@ private:
   Cassandra(const Cassandra&);
   Cassandra &operator=(const Cassandra&);
 
-  typedef std::map<std::string, 
-                   std::map<std::string, 
-                            std::vector<org::apache::cassandra::Mutation> 
-                           > 
+  typedef std::map<std::string,
+                   std::map<std::string,
+                            std::vector<org::apache::cassandra::Mutation>
+                           >
                   > MutationsMap;
 
-  static void addToMap(const ColumnInsertTuple &tuple, MutationsMap &mutations); 
+  static void addToMap(const ColumnInsertTuple &tuple, MutationsMap &mutations);
 
-  static void addToMap(const SuperColumnInsertTuple &tuple, MutationsMap &mutations); 
+  static void addToMap(const SuperColumnInsertTuple &tuple, MutationsMap &mutations);
+
+  static void addToMap(const CounterColumnInsertTuple &tuple, MutationsMap &mutations);
+
+  static void addToMap(const CounterSuperColumnInsertTuple &tuple, MutationsMap &mutations);
 
 };
 
